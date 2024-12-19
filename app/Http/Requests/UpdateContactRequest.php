@@ -20,7 +20,7 @@ class UpdateContactRequest extends FormRequest
             'address' => 'required|string|max:255',
             'complement' => 'nullable|string|max:255',
             'city' => 'required|string|max:255',
-            'state' => 'required|string|max:2',
+            'state' => 'required|string|max:100',
             'cep' => 'required|string|max:10',
         ];
     }

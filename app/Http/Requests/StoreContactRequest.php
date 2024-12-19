@@ -15,12 +15,12 @@ class StoreContactRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'cpf' => 'required|cpf|unique:contacts,cpf',
+            'cpf' => 'required|string|cpf|unique:contacts,cpf',
             'phone' => 'required|string|max:15',
             'address' => 'required|string|max:255',
             'complement' => 'nullable|string|max:255',
             'city' => 'required|string|max:255',
-            'state' => 'required|string|max:2',
+            'state' => 'required|string|max:50',
             'cep' => 'required|string|max:10',
         ];
     }
