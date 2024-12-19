@@ -19,13 +19,13 @@ class ContactTest extends TestCase
 
         $data = [
             'name' => 'John Doe',
-            'cpf' => '123.456.789-00',
+            'cpf' => '93337612091',
             'phone' => '1234567890',
             'address' => '123 Main St',
             'complement' => 'Apt 101',
             'city' => 'São Paulo',
             'state' => 'SP',
-            'cep' => '12345-678',
+            'cep' => '12345678',
         ];
 
         $response = $this->postJson('/api/contacts', $data);
@@ -41,28 +41,28 @@ class ContactTest extends TestCase
 
         Contact::create([
             'name' => 'John Doe',
-            'cpf' => '123.456.789-00',
+            'cpf' => '93337612091',
             'phone' => '1234567890',
             'address' => '123 Main St',
             'city' => 'São Paulo',
             'state' => 'SP',
-            'cep' => '12345-678',
+            'cep' => '12345678',
             'user_id' => $user->id,
         ]);
 
         $response = $this->postJson('/api/contacts', [
             'name' => 'Jane Doe',
-            'cpf' => '123.456.789-00',
+            'cpf' => '93337612091',
             'phone' => '0987654321',
             'address' => '456 Another St',
             'city' => 'Rio de Janeiro',
             'state' => 'RJ',
-            'cep' => '98765-432',
+            'cep' => '98765432',
             'complement' => "teste"
         ]);
 
-        $response->assertStatus(500);
-        $response->assertJsonFragment(['cpf' => ['O CPF já está em uso.']]);
+        $response->assertStatus(422);
+        $response->assertJsonFragment(['message' => 'Este CPF já está cadastrado.']);
     }
 
     public function test_user_can_list_contacts_with_filters()
@@ -70,7 +70,6 @@ class ContactTest extends TestCase
         $user = User::factory()->create();
         Sanctum::actingAs($user);
 
-        // Criar alguns contatos
         Contact::create([
             'name' => 'John Doe',
             'cpf' => '123.456.789-00',
@@ -93,12 +92,10 @@ class ContactTest extends TestCase
             'user_id' => $user->id,
         ]);
 
-        // Testar filtro por nome
         $response = $this->getJson('/api/contacts?name=Jane');
         $response->assertStatus(200);
         $response->assertJsonFragment(['name' => 'Jane Doe']);
 
-        // Testar filtro por CPF
         $response = $this->getJson('/api/contacts?cpf=123.456.789-00');
         $response->assertStatus(200);
         $response->assertJsonFragment(['cpf' => '123.456.789-00']);

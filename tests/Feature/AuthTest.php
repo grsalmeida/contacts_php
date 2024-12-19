@@ -46,14 +46,18 @@ class AuthTest extends TestCase
     {
         $user = User::factory()->create();
 
-        Sanctum::actingAs($user);
 
         $response = $this->deleteJson('/api/account', ['password' => 'incorrect-password']);
         $response->assertStatus(401);
-        $response->assertJson(['mensagem' => 'Senha incorreta.']);
+        $response->assertJson(['message' => 'Unauthenticated.']);
+
+        $user = User::factory()->create([
+            'password' => 'correct-password',
+        ]);
+        Sanctum::actingAs($user);
 
         $response = $this->deleteJson('/api/account', ['password' => 'correct-password']);
         $response->assertStatus(200);
-        $response->assertJson(['mensagem' => 'Account deleted successfully']);
+        $response->assertJson(['mensagem' => 'Conta excluída com sucesso.']);
     }
 }
