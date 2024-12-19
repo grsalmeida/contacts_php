@@ -14,13 +14,19 @@ class Contact extends Model
         'name',
         'cpf',
         'phone',
-        'address_id', // Relacionamento com a tabela de endereços
+        'address_id',
+        'user_id',
     ];
 
     // Relacionamento com o modelo Address
     public function address()
     {
         return $this->belongsTo(Address::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }
 

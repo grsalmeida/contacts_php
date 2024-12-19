@@ -26,16 +26,22 @@ class ContactUseCase
         $this->viaCepService = $viaCepService;
     }
 
-    public function createContact(array $data)
+    public function createContact(array $data, int $userId)
     {
-        $data = $this->googleGeocodeService->getCoordinates($data['address']);
-        return $this->contactRepository->createContact($data);
+        $data['cordinates'] = $this->googleGeocodeService->getCoordinates($data);
+        $data['user_id'] = $userId;
+        $contact= $this->contactRepository->createContact($data);
+        $contact->load(['address', 'user']);
+        return $contact;
     }
 
     public function updateContact(int $id, array $data)
     {
-        $data = $this->googleGeocodeService->getCoordinates($data['address']);
-        return $this->contactRepository->updateContact($id, $data);
+        $data['cordinates'] = $this->googleGeocodeService->getCoordinates($data);
+        $contact = $this->contactRepository->updateContact($id, $data);
+        $contact->load(['address', 'user']);
+        return $contact;
+
     }
 
     public function deleteContact(int $id)

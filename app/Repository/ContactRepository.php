@@ -12,6 +12,7 @@ class ContactRepository implements ContactRepositoryInterface
 {
     public function createContact(array $data): Contact
     {
+
         return DB::transaction(function () use ($data) {
             $address = Address::create([
                 'address' => $data['address'],
@@ -19,8 +20,8 @@ class ContactRepository implements ContactRepositoryInterface
                 'city' => $data['city'],
                 'state' => $data['state'],
                 'cep' => $data['cep'],
-                'latitude' => $data['latitude'],
-                'longitude' => $data['longitude'],
+                'latitude' => isset($data['cordinates']['lat']) ? $data['cordinates']['lat'] : null,
+                'longitude' => isset($data['cordinates']['lng']) ? $data['cordinates']['lng'] : null,
             ]);
 
             return Contact::create([
@@ -28,6 +29,7 @@ class ContactRepository implements ContactRepositoryInterface
                 'cpf' => $data['cpf'],
                 'phone' => $data['phone'],
                 'address_id' => $address->id,
+                'user_id' => $data['user_id']
             ]);
         });
     }
@@ -43,15 +45,16 @@ class ContactRepository implements ContactRepositoryInterface
                 'city' => $data['city'],
                 'state' => $data['state'],
                 'cep' => $data['cep'],
-                'latitude' => $data['latitude'],
-                'longitude' => $data['longitude'],
+                'latitude' => isset($data['cordinates']['lat']) ? $data['cordinates']['lat'] : null,
+                'longitude' => isset($data['cordinates']['lng']) ? $data['cordinates']['lng'] : null,
             ]);
 
-            return $contact->update([
+            $contact->update([
                 'name' => $data['name'],
                 'cpf' => $data['cpf'],
                 'phone' => $data['phone'],
             ]);
+            return $contact;
         });
     }
 

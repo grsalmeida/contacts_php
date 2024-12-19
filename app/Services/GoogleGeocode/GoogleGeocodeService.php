@@ -20,10 +20,10 @@ class GoogleGeocodeService extends BaseHttpService
      * @param string $address
      * @return array
      */
-    public function getCoordinates(string $address): array
+    public function getCoordinates(array $data): array
     {
         $query = [
-            'address' => $address,
+            'address' => "{$data['cep']},{$data['city']},{$data['state']}",
             'key' => $this->apiKey,
         ];
 

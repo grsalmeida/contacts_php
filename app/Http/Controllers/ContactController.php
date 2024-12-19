@@ -18,10 +18,10 @@ class ContactController extends Controller
         $this->contactUseCase = $contactUseCase;
     }
 
-    public function store(StoreContactRequest $request): JsonResponse
+    public function store(Request $request): JsonResponse
     {
         try {
-            $contact = $this->contactUseCase->createContact($request->validated());
+            $contact = $this->contactUseCase->createContact($request->all(), auth()->id());
             return response()->json([
                 'mensagem' => 'Contato criado com sucesso.',
                 'contato' => $contact,
@@ -47,10 +47,10 @@ class ContactController extends Controller
         }
     }
 
-    public function update(UpdateContactRequest $request, int $id): JsonResponse
+    public function update(Request $request, int $id): JsonResponse
     {
         try {
-            $this->contactUseCase->updateContact($id, $request->validated());
+            $this->contactUseCase->updateContact($id, $request->all());
             return response()->json(['mensagem' => 'Contato atualizado com sucesso.'], 200);
         } catch (\Exception $e) {
             return response()->json([
