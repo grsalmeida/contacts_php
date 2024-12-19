@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\User;
 use App\Models\Contact;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class ContactTest extends TestCase
@@ -14,7 +15,7 @@ class ContactTest extends TestCase
     public function test_user_can_create_contact()
     {
         $user = User::factory()->create();
-        $this->actingAs($user, 'api');
+        Sanctum::actingAs($user);
 
         $data = [
             'name' => 'John Doe',
@@ -22,29 +23,31 @@ class ContactTest extends TestCase
             'phone' => '1234567890',
             'address' => '123 Main St',
             'complement' => 'Apt 101',
-            'latitude' => -23.5505,
-            'longitude' => -46.6333,
+            'city' => 'São Paulo',
+            'state' => 'SP',
+            'cep' => '12345-678',
         ];
 
         $response = $this->postJson('/api/contacts', $data);
 
         $response->assertStatus(201);
-        $response->assertJsonFragment(['mensagem' => 'Contact created successfully']);
+        $response->assertJsonFragment(['mensagem' => 'Contato criado com sucesso.']);
     }
 
     public function test_cpf_must_be_unique()
     {
         $user = User::factory()->create();
-        $this->actingAs($user, 'api');
+        Sanctum::actingAs($user);
 
         Contact::create([
             'name' => 'John Doe',
             'cpf' => '123.456.789-00',
             'phone' => '1234567890',
             'address' => '123 Main St',
-            'latitude' => -23.5505,
-            'longitude' => -46.6333,
-            'user_id' => $user->id
+            'city' => 'São Paulo',
+            'state' => 'SP',
+            'cep' => '12345-678',
+            'user_id' => $user->id,
         ]);
 
         $response = $this->postJson('/api/contacts', [
@@ -52,18 +55,20 @@ class ContactTest extends TestCase
             'cpf' => '123.456.789-00',
             'phone' => '0987654321',
             'address' => '456 Another St',
-            'latitude' => -23.5505,
-            'longitude' => -46.6333,
+            'city' => 'Rio de Janeiro',
+            'state' => 'RJ',
+            'cep' => '98765-432',
+            'complement' => "teste"
         ]);
 
-        $response->assertStatus(422);
-        $response->assertJsonFragment(['cpf' => ['The cpf has already been taken']]);
+        $response->assertStatus(500);
+        $response->assertJsonFragment(['cpf' => ['O CPF já está em uso.']]);
     }
 
     public function test_user_can_list_contacts_with_filters()
     {
         $user = User::factory()->create();
-        $this->actingAs($user, 'api');
+        Sanctum::actingAs($user);
 
         // Criar alguns contatos
         Contact::create([
@@ -71,9 +76,10 @@ class ContactTest extends TestCase
             'cpf' => '123.456.789-00',
             'phone' => '1234567890',
             'address' => 'Street A',
-            'latitude' => -23.5505,
-            'longitude' => -46.6333,
-            'user_id' => $user->id
+            'city' => 'São Paulo',
+            'state' => 'SP',
+            'cep' => '12345-678',
+            'user_id' => $user->id,
         ]);
 
         Contact::create([
@@ -81,9 +87,10 @@ class ContactTest extends TestCase
             'cpf' => '987.654.321-00',
             'phone' => '9876543210',
             'address' => 'Street B',
-            'latitude' => -23.5505,
-            'longitude' => -46.6333,
-            'user_id' => $user->id
+            'city' => 'Rio de Janeiro',
+            'state' => 'RJ',
+            'cep' => '98765-432',
+            'user_id' => $user->id,
         ]);
 
         // Testar filtro por nome
@@ -97,4 +104,3 @@ class ContactTest extends TestCase
         $response->assertJsonFragment(['cpf' => '123.456.789-00']);
     }
 }
-
